@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { AppLayout, Loading, useAuth } from '../components/index';
-import { addXp, addSubmission, getSolvedTasks, checkAchievements } from '../components/storage';
+import { AppLayout, Loading, useAuth } from '../../components/index';
+import { addXp, addSubmission, getSolvedTasks, checkAchievements } from '../../components/storage';
 
 const API = process.env.NEXT_PUBLIC_API_URL || '';
 const tasksApi = `${API}/api/tasks`;
