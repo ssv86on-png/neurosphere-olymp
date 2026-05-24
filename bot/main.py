@@ -18,7 +18,7 @@ load_dotenv()
 # Config
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8681279092:AAHFPi2kWOG7yNVYJdT0dOxAfOIMMvlioNc")
 BOT_USERNAME = os.getenv("BOT_USERNAME", "aistudyolimp_bot")
-VERCEL_URL = "https://neurosphere-olymp-eix156x3r-ssv86on-pngs-projects.vercel.app"
+VERCEL_URL = "https://neurosphere-olymp.vercel.app"
 WEBAPP_URL = os.getenv("WEBAPP_URL", VERCEL_URL)
 API_URL = os.getenv("API_URL", VERCEL_URL)
 
