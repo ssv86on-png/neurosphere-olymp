@@ -1,10 +1,14 @@
 'use client';
 import React, { useState, useEffect, createContext, useContext } from 'react';
+import { getData, setData, addUser, getUser, addXp, addSubmission, getSolvedTasks, getLeaderboard, checkAchievements } from './storage';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://neurosphere-olymp-api.vercel.app';
+export { getData, setData, addUser, getUser, addXp, addSubmission, getSolvedTasks, getLeaderboard, checkAchievements };
+export { registerForOlympiad, getOlympiadParticipants } from './storage';
 
-// ===== AUTH CONTEXT =====
-const AuthContext = createContext(null);
+const API = process.env.NEXT_PUBLIC_API_URL || '';
+
+// ===== AUTH =====
+export const AuthContext = createContext(null);
 export function useAuth() { return useContext(AuthContext); }
 
 export function AuthProvider({ children }) {
@@ -12,48 +16,36 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to restore from Telegram WebApp
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
       tg.expand();
       const initData = tg.initDataUnsafe?.user;
       if (initData) {
-        loginWithTelegram(initData);
-      } else {
-        setLoading(false);
+        let u = getUser(initData.id);
+        if (!u) {
+          u = addUser({
+            telegram_id: initData.id,
+            telegram_name: initData.username || `${initData.first_name} ${initData.last_name || ''}`.trim(),
+            first_name: initData.first_name,
+            last_name: initData.last_name,
+            username: initData.username,
+          });
+        }
+        setUser(u);
       }
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  async function loginWithTelegram(tgUser) {
-    try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          telegram_id: tgUser.id,
-          telegram_name: tgUser.username || `${tgUser.first_name} ${tgUser.last_name || ''}`.trim(),
-          first_name: tgUser.first_name,
-          last_name: tgUser.last_name,
-          username: tgUser.username,
-        }),
-      });
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-      }
-    } catch (e) {
-      console.error('Auth error:', e);
     }
     setLoading(false);
-  }
+  }, []);
+
+  const refreshUser = () => {
+    if (user) {
+      setUser({ ...getUser(user.telegram_id) });
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, setUser }}>
+    <AuthContext.Provider value={{ user, loading, setUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -62,8 +54,6 @@ export function AuthProvider({ children }) {
 // ===== LAYOUT =====
 export function AppLayout({ children, title, showBack = false }) {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('home');
-
   const tabs = [
     { id: 'home', label: 'Главная', icon: '🏠', href: '/' },
     { id: 'tasks', label: 'Задачи', icon: '📚', href: '/tasks' },
@@ -79,7 +69,6 @@ export function AppLayout({ children, title, showBack = false }) {
       color: '#e2e8f0', fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
       paddingBottom: 80, position: 'relative',
     }}>
-      {/* Header */}
       <div style={{
         padding: '16px 20px', display: 'flex', alignItems: 'center',
         justifyContent: showBack ? 'space-between' : 'center',
@@ -96,14 +85,11 @@ export function AppLayout({ children, title, showBack = false }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
             <span style={{ color: '#fbbf24' }}>⭐</span>
             <span style={{ fontWeight: 600 }}>{user.xp || 0}</span>
+            <span style={{ color: '#3b82f6', fontSize: 12 }}>Lv.{user.level || 1}</span>
           </div>
         )}
       </div>
-
-      {/* Content */}
       <div style={{ padding: 16 }}>{children}</div>
-
-      {/* Bottom Tabs */}
       <div style={{
         position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
         maxWidth: 480, width: '100%',
@@ -115,7 +101,7 @@ export function AppLayout({ children, title, showBack = false }) {
           <a key={tab.id} href={tab.href} style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             gap: 2, textDecoration: 'none', color: '#94a3b8', fontSize: 11,
-            opacity: typeof window !== 'undefined' && window.location.pathname.startsWith(tab.href) ? 1 : 0.6,
+            opacity: typeof window !== 'undefined' && window.location.pathname === tab.href ? 1 : 0.6,
           }}>
             <span style={{ fontSize: 22 }}>{tab.icon}</span>
             <span>{tab.label}</span>
@@ -127,22 +113,21 @@ export function AppLayout({ children, title, showBack = false }) {
 }
 
 // ===== COMPONENTS =====
-
-export function TaskCard({ task, onClick }) {
+export function TaskCard({ task, onClick, solved }) {
   const colors = { easy: '#22c55e', medium: '#eab308', hard: '#ef4444', expert: '#a855f7' };
   return (
     <div onClick={onClick} style={{
-      background: '#1e293b', borderRadius: 12, padding: 16, marginBottom: 10,
-      border: '1px solid #334155', cursor: 'pointer',
+      background: '#1e293b', borderRadius: 12, padding: 14, marginBottom: 8,
+      border: solved ? '1px solid #22c55e' : '1px solid #334155',
+      cursor: 'pointer',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontSize: 16, fontWeight: 600, color: '#f8fafc' }}>{task.title}</span>
-        <span style={{
-          background: colors[task.difficulty] || '#64748b',
-          color: '#fff', borderRadius: 6, padding: '2px 8px', fontSize: 11,
-        }}>{task.difficulty}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+        <span style={{ fontSize: 14, fontWeight: 600, color: solved ? '#22c55e' : '#f8fafc' }}>
+          {solved ? '✅ ' : ''}#{task.id} {task.title}
+        </span>
+        <span style={{ background: colors[task.difficulty] || '#64748b', color: '#fff', borderRadius: 6, padding: '2px 8px', fontSize: 11 }}>{task.difficulty}</span>
       </div>
-      <div style={{ display: 'flex', gap: 12, fontSize: 13, color: '#94a3b8' }}>
+      <div style={{ display: 'flex', gap: 12, fontSize: 12, color: '#64748b' }}>
         <span>📂 {task.category}</span>
         <span>⭐ +{task.xp_reward}</span>
       </div>
@@ -153,21 +138,16 @@ export function TaskCard({ task, onClick }) {
 export function OlympiadCard({ olympiad, onClick }) {
   return (
     <div onClick={onClick} style={{
-      background: 'linear-gradient(135deg, #312e81, #1e1b4b)',
-      borderRadius: 16, padding: 20, marginBottom: 12, cursor: 'pointer',
-      border: '1px solid #4338ca',
+      background: 'linear-gradient(135deg, #312e81, #1e1b4b)', borderRadius: 16,
+      padding: 20, marginBottom: 12, cursor: 'pointer', border: '1px solid #4338ca',
     }}>
       <div style={{ fontSize: 14, color: '#a5b4fc', marginBottom: 4 }}>
-        {olympiad.status === 'active' ? '🟢 Активна' : olympiad.status}
+        {olympiad.status === 'active' ? '🟢 Активна' : '⚪ Скоро'}
       </div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: '#f8fafc', marginBottom: 8 }}>
-        🏆 {olympiad.title}
-      </div>
-      <div style={{ fontSize: 13, color: '#c7d2fe', marginBottom: 12 }}>
-        {olympiad.description}
-      </div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: '#f8fafc', marginBottom: 8 }}>🏆 {olympiad.title}</div>
+      <div style={{ fontSize: 13, color: '#c7d2fe', marginBottom: 12 }}>{olympiad.description}</div>
       <div style={{ display: 'flex', gap: 16, fontSize: 13, color: '#a5b4fc' }}>
-        <span>📝 {olympiad.task_count} задач</span>
+        <span>📝 {olympiad.taskIds?.length || 0} задач</span>
         <span>👥 {olympiad.participants || 0} участников</span>
       </div>
     </div>
@@ -175,15 +155,15 @@ export function OlympiadCard({ olympiad, onClick }) {
 }
 
 export function StatBar({ label, value, color = '#3b82f6', max = 100 }) {
-  const pct = Math.min((value / max) * 100, 100);
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 14 }}>
+    <div style={{ marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4, fontSize: 13 }}>
         <span>{label}</span>
-        <span style={{ fontWeight: 600 }}>{value}</span>
+        <span style={{ fontWeight: 600 }}>{value}{max > 0 ? `/${max}` : ''}</span>
       </div>
-      <div style={{ background: '#334155', borderRadius: 8, height: 8, overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, background: color, height: '100%', borderRadius: 8, transition: 'width 0.3s' }} />
+      <div style={{ background: '#334155', borderRadius: 6, height: 6, overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, background: color, height: '100%', borderRadius: 6 }} />
       </div>
     </div>
   );
@@ -192,11 +172,7 @@ export function StatBar({ label, value, color = '#3b82f6', max = 100 }) {
 export function Loading() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: '50%',
-        border: '3px solid #334155', borderTopColor: '#3b82f6',
-        animation: 'spin 0.8s linear infinite',
-      }} />
+      <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #334155', borderTopColor: '#3b82f6', animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
