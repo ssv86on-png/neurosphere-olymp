@@ -1,7 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { AppLayout, Loading, useAuth } from '../components/index';
-import TaskCard from '../components/index';
 
 const API = process.env.NEXT_PUBLIC_API_URL || '';
 
