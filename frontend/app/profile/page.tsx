@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { AppLayout, Loading, useAuth } from '../../components/index';
-import { getLeaderboard, getSolvedTasks } from '../../components/storage';
+import { AppLayout, Loading, useAuth } from '../components/index';
+import { getLeaderboard, getSolvedTasks } from '../components/storage';
 
 const API = process.env.NEXT_PUBLIC_API_URL || '';
 

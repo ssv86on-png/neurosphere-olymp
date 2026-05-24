@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { AppLayout, Loading, useAuth } from '../../components/index';
+import { AppLayout, Loading, useAuth } from '../components/index';
 
 const API = process.env.NEXT_PUBLIC_API_URL || '';
 
