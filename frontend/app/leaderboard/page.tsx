@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { AppLayout, Loading } from '../components/index';
+import { AppLayout, Loading } from '../../components/index';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://neurosphere-olymp-api.vercel.app';
 
