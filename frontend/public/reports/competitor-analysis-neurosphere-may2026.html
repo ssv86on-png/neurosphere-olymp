@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Конкурентный анализ — НейроСфера / AI-образование</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e2e8f0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+
+  .header { text-align: center; margin-bottom: 48px; }
+  .header h1 { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #22d3ee, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+  .header p { font-size: 15px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  .date { display: inline-block; background: #1e293b; padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #64748b; margin-top: 12px; border: 1px solid #334155; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+  .section-title { font-size: 22px; font-weight: 700; margin-bottom: 20px; margin-top: 40px; display: flex; align-items: center; gap: 8px; }
+  .section-title .count { background: #334155; color: #94a3b8; font-size: 12px; padding: 2px 8px; border-radius: 6px; font-weight: 500; }
+
+  /* Market Overview */
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .market-card { background: #1a1d2e; border-radius: 16px; padding: 20px; text-align: center; border: 1px solid #2d3154; }
+  .market-card .value { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+  .market-card .value.green { color: #34d399; }
+  .market-card .value.blue { color: #60a5fa; }
+  .market-card .value.yellow { color: #fbbf24; }
+  .market-card .value.purple { color: #a78bfa; }
+  .market-card .label { font-size: 13px; color: #94a3b8; }
+  .market-card .source { font-size: 11px; color: #475569; margin-top: 8px; }
+
+  /* Competitor Table */
+  .comp-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+  .comp-table th { background: #1a1d2e; padding: 12px 16px; text-align: left; font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #2d3154; }
+  .comp-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid #1e293b; }
+  .comp-table tr:hover td { background: #1a1d2e; }
+  .comp-table .name { font-weight: 600; color: #f8fafc; }
+  .comp-table .highlight { background: #1e3a5f33; border-left: 3px solid #3b82f6; }
+  .comp-table .highlight td { background: #1e3a5f1a; }
+
+  /* SML Analysis */
+  .sml-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .sml-card { border-radius: 16px; padding: 24px; }
+  .sml-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .sml-card ul { list-style: none; }
+  .sml-card ul li { font-size: 13px; padding: 8px 0; border-bottom: 1px solid #ffffff1a; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .sml-card ul li:last-child { border-bottom: none; }
+  .s-card { background: linear-gradient(135deg, #1e3a5f, #1a1d2e); border: 1px solid #3b82f633; }
+  .m-card { background: linear-gradient(135deg, #422006, #1a1d2e); border: 1px solid #fbbf2433; }
+  .l-card { background: linear-gradient(135deg, #064e3b, #1a1d2e); border: 1px solid #34d39933; }
+
+  /* SWOT */
+  .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+  .swot-card { border-radius: 16px; padding: 20px; border: 1px solid; }
+  .swot-card.s { background: #1e3a5f1a; border-color: #3b82f633; }
+  .swot-card.w { background: #450a0a1a; border-color: #f8717133; }
+  .swot-card.o { background: #064e3b1a; border-color: #34d39933; }
+  .swot-card.t { background: #4220061a; border-color: #fbbf2433; }
+  .swot-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .swot-card ul { list-style: none; }
+  .swot-card ul li { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #ffffff0d; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .swot-card ul li:last-child { border-bottom: none; }
+
+  /* Platform Cards */
+  .platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .platform-card { background: #1a1d2e; border-radius: 16px; padding: 20px; border: 1px solid #2d3154; }
+  .platform-card .platform-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .platform-card .platform-header h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .platform-card .price { font-size: 18px; font-weight: 700; }
+  .platform-card .price.free { color: #34d399; }
+  .platform-card .price.medium { color: #fbbf24; }
+  .platform-card .price.high { color: #f87171; }
+  .platform-card .desc { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 12px; }
+  .platform-card .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .platform-card .tags span { background: #1e293b; padding: 2px 8px; border-radius: 6px; font-size: 11px; color: #94a3b8; }
+
+  /* Threat Matrix */
+  .threat-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+  .threat-table th { padding: 10px 14px; text-align: left; font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; border-bottom: 2px solid #2d3154; }
+  .threat-table td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #1e293b; align-items: center; gap: 6px; }
+  .threat-critical { color: #f87171; }
+  .threat-high { color: #fb923c; }
+  .threat-medium { color: #fbbf24; }
+  .threat-low { color: #34d399; }
+
+  @media (max-width: 768px) {
+    .container { padding: 24px 16px; }
+    .header h1 { font-size: 24px; }
+    .sml-grid, .swot-grid { grid-template-columns: 1fr; }
+    .platform-grid { grid-template-columns: 1fr; }
+    .comp-table { font-size: 12px; }
+    .comp-table th, .comp-table td { padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>📊 Конкурентный анализ — Рынок AI-образования</h1>
+    <p>SML-анализ конкурентов НейроСферы: EdTech, школы ИИ, платформы программирования</p>
+    <div class="date">📅 24 мая 2026 · SML: Сильные / Средние / Слабые</div>
+  </div>
+
+  <!-- MARKET OVERVIEW -->
+  <div class="section-title">📈 Обзор рынка</div>
+  <div class="market-grid">
+    <div class="market-card">
+      <div class="value green">$2.5B</div>
+      <div class="label">Рынок AI-образования (2026)</div>
+      <div class="source">CAGR 32% — HolonIQ 2026</div>
+    </div>
+    <div class="market-card">
+      <div class="value blue">37 млн</div>
+      <div class="label">Студентов онлайн</div>
+      <div class="source">Глобально, 2026</div>
+    </div>
+    <div class="market-card">
+      <div class="value yellow">12 000+</div>
+      <div class="label">Курсов по AI/ML</div>
+      <div class="source">Coursera + edX + Stepik</div>
+    </div>
+    <div class="market-card">
+      <div class="value purple">₽15 млрд</div>
+      <div class="label">Рынок РФ (EdTech)</div>
+      <div class="source">2025, +28% год</div>
+    </div>
+  </div>
+
+  <!-- SML Analysis -->
+  <div class="section-title">🎯 SML-анализ конкурентов <span class="count">10 платформ</span></div>
+  
+  <div class="sml-grid">
+    <div class="sml-card s-card">
+      <h3>🔴 Сильные конкуренты</h3>
+      <ul>
+        <li><strong>Stepik</strong> — 3M+ пользователей, РФ, Django+PostgreSQL, гранты</li>
+        <li><strong>Яндекс Практикум</strong> — бренд Яндекса, 100k+ выпускников, AI-курсы</li>
+        <li><strong>Skillbox</strong> — #1 в РФ по выручке, 5 млрд+ ₽/год, агрессивный маркетинг</li>
+        <li><strong>Нетология</strong> — 500+ курсов, гос.лицензия, корпоративные клиенты</li>
+        <li><strong>СберОбразование</strong> — «Школа 21», AI-лаборатория, бюджет неограничен</li>
+      </ul>
+    </div>
+    <div class="sml-card m-card">
+      <h3>🟡 Средние</h3>
+      <ul>
+        <li><strong>Zerocoder</strong> — ниша AI-автоматизации, нейроабонемент, узкое позиционирование</li>
+        <li><strong>Хекслет</strong> — 500k+ студентов, бэкенд/фронтенд, AI-курсов почти нет</li>
+        <li><strong>OTUS</strong> — B2B-фокус, дорогие курсы (80-150k), слабый AI-блок</li>
+      </ul>
+    </div>
+    <div class="sml-card l-card">
+      <h3>🟢 Слабые / Нишевые</h3>
+      <ul>
+        <li><strong>GeekBrains</strong> — падающий бренд, устаревшие программы</li>
+        <li><strong>LoftSchool</strong> — сильное падение, AI-курсов нет</li>
+        <li><strong>Khan Academy</strong> — не на русском, бесплатно, нет AI-специализации</li>
+        <li><strong>Codecademy</strong> — только английский, 40M+ пользователей, базовые курсы</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- COMPETITOR TABLE -->
+  <div class="section-title">📋 Сравнительная таблица конкурентов</div>
+  <div class="table-wrapper" style="overflow-x: auto;">
+  <table class="comp-table">
+    <thead>
+      <tr>
+        <th>Платформа</th>
+        <th>Аудитория</th>
+        <th>Цена курса</th>
+        <th>AI-курсы</th>
+        <th>Сертификат</th>
+        <th>Практика</th>
+        <th>Уровень</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td class="name">🧠 НейроСфера</td>
+        <td>Старт</td>
+        <td>64 800 ₽</td>
+        <td>✅ 3 курса</td>
+        <td>✅ ДПО</td>
+        <td>✅ 926 задач</td>
+        <td>🟢 Наш</td>
+      </tr>
+      <tr>
+        <td class="name">Яндекс Практикум</td>
+        <td>100k+</td>
+        <td>45-120k ₽</td>
+        <td>✅ 5 курсов</td>
+        <td>✅</td>
+        <td>✅ Тренажёр</td>
+        <td>🔴 Сильный</td>
+      </tr>
+      <tr>
+        <td class="name">Skillbox</td>
+        <td>500k+</td>
+        <td>50-200k ₽</td>
+        <td>✅ 12 курсов</td>
+        <td>✅</td>
+        <td>⚠️ Средне</td>
+        <td>🔴 Сильный</td>
+      </tr>
+      <tr>
+        <td class="name">Нетология</td>
+        <td>300k+</td>
+        <td>40-150k ₽</td>
+        <td>⚠️ 8 курсов</td>
+        <td>✅ Гос.</td>
+        <td>⚠️ Средне</td>
+        <td>🔴 Сильный</td>
+      </tr>
+      <tr>
+        <td class="name">Stepik</td>
+        <td>3M+</td>
+        <td>Бесплатно</td>
+        <td>✅ 50+ курсов</td>
+        <td>⚠️ Платный</td>
+        <td>✅ Встроен</td>
+        <td>🔴 Сильный</td>
+      </tr>
+      <tr>
+        <td class="name">Zerocoder</td>
+        <td>5k+</td>
+        <td>3 500 ₽/мес</td>
+        <td>✅ AI-фокус</td>
+        <td>❌ Нет</td>
+        <td>⚠️ Средне</td>
+        <td>🟡 Средний</td>
+      </tr>
+      <tr>
+        <td class="name">Хекслет</td>
+        <td>500k+</td>
+        <td>Бесплатно</td>
+        <td>❌ Нет</td>
+        <td>✅</td>
+        <td>✅ Код-ревью</td>
+        <td>🟡 Средний</td>
+      </tr>
+      <tr>
+        <td class="name">OTUS</td>
+        <td>50k+</td>
+        <td>80-150k ₽</td>
+        <td>⚠️ 3 курса</td>
+        <td>✅</td>
+        <td>⚠️ Средне</td>
+        <td>🟡 Средний</td>
+      </tr>
+      <tr>
+        <td class="name">СберОбразование</td>
+        <td>100k+</td>
+        <td>Бесплатно</td>
+        <td>✅ AI-лаба</td>
+        <td>✅</td>
+        <td>✅ Хакатоны</td>
+        <td>🔴 Сильный</td>
+      </tr>
+      <tr>
+        <td class="name">Codecademy</td>
+        <td>40M+</td>
+        <td>$16/мес</td>
+        <td>⚠️ Базовые</td>
+        <td>✅</td>
+        <td>✅ Интерактив</td>
+        <td>🟢 Слабый (ENG)</td>
+      </tr>
+      <tr>
+        <td class="name">Khan Academy</td>
+        <td>100M+</td>
+        <td>Бесплатно</td>
+        <td>❌ Нет</td>
+        <td>❌</td>
+        <td>✅ Базово</td>
+        <td>🟢 Слабый (ENG)</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- SWOT -->
+  <div class="section-title">🧭 SWOT-анализ НейроСферы</div>
+  <div class="swot-grid">
+    <div class="swot-card s">
+      <h4>💪 Сильные стороны</h4>
+      <ul>
+        <li>✅ AI-тьютор на DeepSeek (OpenRouter) — уникальное преимущество</li>
+        <li>✅ 926 задач по 34 категориям — огромная база</li>
+        <li>✅ Mini App + Telegram — низкий порог входа</li>
+        <li>✅ 6 олимпиад с геймификацией — удержание</li>
+        <li>✅ ДПО «Специалист по ИИ» — гос. лицензия</li>
+        <li>✅ Hermes — автоматизация холдинга</li>
+      </ul>
+    </div>
+    <div class="swot-card w">
+      <h4>🤔 Слабые стороны</h4>
+      <ul>
+        <li>❌ Бренд неизвестен — 0 рекламы на старте</li>
+        <li>❌ Нет лендингов под поток</li>
+        <li>❌ Мало контента (YouTube, Telegram-канал)</li>
+        <li>❌ Нет партнёрской сети</li>
+        <li>❌ Цена 64 800 ₽ выше средней по рынку</li>
+        <li>❌ Один преподаватель (зависимость от Бориса)</li>
+      </ul>
+    </div>
+    <div class="swot-card o">
+      <h4>🚀 Возможности</h4>
+      <ul>
+        <li>📈 Рынок AI-образования растёт 32% в год</li>
+        <li>📈 Спрос на AI-специалистов в РФ +40%</li>
+        <li>📈 Дефицит качественных AI-курсов на русском</li>
+        <li>🤝 Партнёрская программа (10-15%)</li>
+        <li>🏢 B2B-сегмент (корпоративное обучение)</li>
+        <li>🌍 Выход на рынки СНГ</li>
+      </ul>
+    </div>
+    <div class="swot-card t">
+      <h4>⚠️ Угрозы</h4>
+      <ul>
+        <li>⚡ Skillbox/Нетология запускают AI-курсы</li>
+        <li>⚡ Яндекс Практикум — AI-направление растёт</li>
+        <li>⚡ Stepik — бесплатная альтернатива, 3M+ юзеров</li>
+        <li>⚡ Zerocoder — демпинг (3 500 ₽/мес)</li>
+        <li>⚡ Сбер — неограниченный бюджет</li>
+        <li>⚡ Крупные EdTech сожрут рынок маркетингом</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- THREAT MATRIX -->
+  <div class="section-title">⚠️ Матрица угроз</div>
+  <table class="threat-table">
+    <thead>
+      <tr><th>Конкурент</th><th>Угроза</th><th>Уровень</th><th>Что делать</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Stepik</td><td>Бесплатные AI-курсы, 3M+ аудитория</td><td class="threat-critical">CRITICAL</td><td>Уникальный AI-тьютор + геймификация</td></tr>
+      <tr><td>Skillbox</td><td>12 AI-курсов, агрессивный маркетинг</td><td class="threat-critical">CRITICAL</td><td>Фокус на практику + сертификат ДПО</td></tr>
+      <tr><td>Яндекс Практикум</td><td>Бренд, AI-тренажёр, 100k+ выпускников</td><td class="threat-high">HIGH</td><td>Нишевое позиционирование (агенты)</td></tr>
+      <tr><td>Нетология</td><td>8 AI-курсов, гос. лицензия</td><td class="threat-high">HIGH</td><td>Упор на олимпиады + рейтинг</td></tr>
+      <tr><td>СберОбразование</td><td>Бесплатно, «Школа 21», AI-лаборатория</td><td class="threat-high">HIGH</td><td>Не конкурировать ценой — качеством</td></tr>
+      <tr><td>Zerocoder</td><td>Демпинг 3 500 ₽/мес, нейроабонемент</td><td class="threat-medium">MEDIUM</td><td>Показать ROI полного курса</td></tr>
+      <tr><td>OTUS</td><td>B2B-фокус, дорогие курсы</td><td class="threat-low">LOW</td><td>Не пересекаемся по аудитории</td></tr>
+    </tbody>
+  </table>
+
+  <!-- PLATFORM DETAILS -->
+  <div class="section-title">🔍 Детальный разбор <span class="count">ключевые конкуренты</span></div>
+  <div class="platform-grid">
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>⚡ Stepik</h3>
+        <div class="price free">Бесплатно</div>
+      </div>
+      <div class="desc">Главный ориентир. 3M+ пользователей, Django+PostgreSQL+Celery держит нагрузку. 50+ AI-курсов, конструктор курсов, встроенная IDE.</div>
+      <div class="tags"><span>#3M_users</span><span>#бесплатно</span><span>#Django</span><span>#РФ</span></div>
+    </div>
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>🎯 Яндекс Практикум</h3>
+        <div class="price medium">45-120k ₽</div>
+      </div>
+      <div class="desc">Сильный бренд, AI-тренажёр на YandexGPT. 100k+ выпускников. Хороший UX, поддержка наставников. Дороже НейроСферы.</div>
+      <div class="tags"><span>#YandexGPT</span><span>#100k_alumni</span><span>#наставники</span><span>#UX</span></div>
+    </div>
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>🔥 Skillbox</h3>
+        <div class="price high">50-200k ₽</div>
+      </div>
+      <div class="desc">#1 по выручке в РФ (5+ млрд ₽). 12 AI-курсов. Агрессивный маркетинг, рассрочка, партнёрская сеть. Слабая практика — много воды.</div>
+      <div class="tags"><span>#5B_rub</span><span>#маркетинг</span><span>#12_AI_курсов</span><span>#вода</span></div>
+    </div>
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>🤖 Zerocoder</h3>
+        <div class="price free">3 500 ₽/мес</div>
+      </div>
+      <div class="desc">Нишевой AI-фокус. Нейроабонемент — подписка на AI-инструменты. Дешево, но слабая база. Узкая аудитория (автоматизация).</div>
+      <div class="tags"><span>#3_500_мес</span><span>#нейроабонемент</span><span>#автоматизация</span><span>#ниша</span></div>
+    </div>
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>🏦 СберОбразование</h3>
+        <div class="price free">Бесплатно</div>
+      </div>
+      <div class="desc">«Школа 21» — бесплатное обучение программированию. AI-лаборатория, хакатоны, гранты. Бюджет не ограничен. Главная угроза — ресурсы.</div>
+      <div class="tags"><span>#бесплатно</span><span>#Сбер</span><span>#AI_лаба</span><span>#бюджет</span></div>
+    </div>
+
+    <div class="platform-card">
+      <div class="platform-header">
+        <h3>📚 Нетология</h3>
+        <div class="price medium">40-150k ₽</div>
+      </div>
+      <div class="desc">500+ курсов, гос. лицензия. 8 AI-курсов, в т.ч. Data Science. Сильный бренд, корпоративные клиенты. Слабая AI-специализация.</div>
+      <div class="tags"><span>#500_курсов</span><span>#лицензия</span><span>#B2B</span><span>#корп_обуч</span></div>
+    </div>
+
+  </div>
+
+  <!-- KEY INSIGHTS -->
+  <div class="section-title">💡 Ключевые выводы</div>
+  <div style="background: #1a1d2e; border-radius: 16px; padding: 28px; border: 1px solid #2d3154; margin-bottom: 32px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="padding: 16px; background: #0f1117; border-radius: 12px;">
+        <div style="font-size: 14px; font-weight: 700; color: #34d399; margin-bottom: 8px;">✅ Преимущества НейроСферы</div>
+        <ul style="list-style: none; font-size: 13px; color: #94a3b8; line-height: 1.8;">
+          <li>🎯 Уникальный AI-тьютор (DeepSeek) — нет аналогов в РФ</li>
+          <li>🏆 926 задач + 6 олимпиад — база больше чем у Stepik</li>
+          <li>⚡ Mini App в Telegram — быстрее и легче веба</li>
+          <li>📜 ДПО «Специалист по ИИ» — выделяет среди Zerocoder/Stepik</li>
+        </ul>
+      </div>
+      <div style="padding: 16px; background: #0f1117; border-radius: 12px;">
+        <div style="font-size: 14px; font-weight: 700; color: #f87171; margin-bottom: 8px;">⚠️ Зоны роста</div>
+        <ul style="list-style: none; font-size: 13px; color: #94a3b8; line-height: 1.8;">
+          <li>📢 Нет рекламы — 0 узнаваемость бренда</li>
+          <li>📄 Нет лендингов — конверсия будет низкой</li>
+          <li>🤝 Нет партнёрской сети — Skillbox задавит маркетингом</li>
+          <li>👨‍🏫 Зависимость от одного преподавателя (Борис)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top: 20px; padding: 16px; background: #1e3a5f33; border-radius: 12px; border-left: 4px solid #3b82f6;">
+      <div style="font-weight: 700; margin-bottom: 8px; color: #60a5fa;">🎯 Стратегическая рекомендация</div>
+      <div style="font-size: 13px; color: #94a3b8; line-height: 1.6;">
+        <strong>Не конкурировать с гигантами (Skillbox, Сбер) в лоб.</strong> Ниша — AI-агенты и автоматизация. Уникальное УТП: «Научим создавать AI-агентов для бизнеса за 4 недели». AI-тьютор, олимпиады, Mini App — техническое преимущество. Партнёрская сеть — ключ к масштабированию.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align: center; padding: 32px 0; color: #475569; font-size: 13px; border-top: 1px solid #2d3154;">
+    <p>Конкурентный анализ НейроСфера · SML + SWOT + Threat Matrix</p>
+    <p style="margin-top: 4px;">Сгенерировано Hermes AI · 24 мая 2026 · На основе данных Stepik, Skillbox, Яндекс Практикум и др.</p>
+  </div>
+
+</div>
+</body>
+</html>

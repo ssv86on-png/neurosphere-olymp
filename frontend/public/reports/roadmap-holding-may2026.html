@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дорожная карта холдинга — Май 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #0f1117; color: #e2e8f0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+  
+  /* Header */
+  .header { text-align: center; margin-bottom: 60px; }
+  .header h1 { font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+  .header p { font-size: 16px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  .date { display: inline-block; background: #1e293b; padding: 6px 16px; border-radius: 20px; font-size: 13px; color: #64748b; margin-top: 16px; border: 1px solid #334155; }
+  
+  /* Overview Cards */
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 48px; }
+  .overview-card { background: #1a1d2e; border-radius: 16px; padding: 24px; border: 1px solid #2d3154; position: relative; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.2s, border-color 0.2s; }
+  .overview-card:hover { transform: translateY(-2px); border-color: #3b82f6; }
+  .overview-card .icon { font-size: 36px; margin-bottom: 12px; }
+  .overview-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .overview-card .status { font-size: 12px; padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 10px; font-weight: 600; }
+  .status-active { background: #064e3b; color: #34d399; }
+  .status-pending { background: #1e3a5f; color: #60a5fa; }
+  .status-planning { background: #422006; color: #fbbf24; }
+  .status-critical { background: #450a0a; color: #f87171; }
+  .overview-card .desc { font-size: 13px; color: #94a3b8; line-height: 1.5; }
+  .overview-card .metrics { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; color: #64748b; }
+  .overview-card .metrics span { display: flex; align-items: center; gap: 4px; }
+
+  /* Timeline */
+  .section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+  .section-title span { background: #3b82f6; color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .timeline { position: relative; padding-left: 32px; margin-bottom: 48px; }
+  .timeline::before { content: ''; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: #2d3154; }
+  .timeline-item { position: relative; margin-bottom: 28px; padding-left: 20px; }
+  .timeline-item::before { content: ''; position: absolute; left: -24px; top: 6px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid; }
+  .t-done::before { background: #22c55e; border-color: #22c55e; }
+  .t-now::before { background: #3b82f6; border-color: #3b82f6; box-shadow: 0 0 0 4px #3b82f633; }
+  .t-soon::before { background: transparent; border-color: #64748b; }
+  
+  .timeline-item .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; font-weight: 600; }
+  .tag-done { background: #064e3b; color: #34d399; }
+  .tag-now { background: #1e3a5f; color: #60a5fa; }
+  .tag-soon { background: #422006; color: #fbbf24; }
+  .tag-tech { background: #312e81; color: #a5b4fc; }
+  
+  .timeline-item h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .timeline-item p { font-size: 13px; color: #94a3b8; line-height: 1.5; margin-bottom: 8px; }
+  .timeline-item .meta { font-size: 12px; color: #64748b; }
+
+  /* Company Blocks */
+  .company-block { background: #1a1d2e; border-radius: 20px; padding: 28px; margin-bottom: 20px; border: 1px solid #2d3154; }
+  .company-block h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .company-block .progress-bar { height: 6px; background: #2d3154; border-radius: 3px; margin-bottom: 16px; overflow: hidden; }
+  .company-block .progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #3b82f6, #a78bfa); transition: width 0.3s; }
+  .company-block .progress-label { font-size: 12px; color: #64748b; display: flex; justify-content: space-between; margin-bottom: 8px; }
+  
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .metric { text-align: center; padding: 12px; background: #0f1117; border-radius: 12px; border: 1px solid #2d3154; }
+  .metric .value { font-size: 24px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .metric .label { font-size: 12px; color: #64748b; }
+
+  .task-list { list-style: none; }
+  .task-list li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2d3154; font-size: 13px; }
+  .task-list li:last-child { border-bottom: none; }
+  .task-list li .done { color: #22c55e; font-weight: 700; }
+  .task-list li .progress { color: #fbbf24; }
+  .task-list li .todo { color: #64748b; }
+  .task-list li .critical { color: #f87171; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin-left: auto; }
+  .badge-done { background: #064e3b; color: #34d399; }
+  .badge-progress { background: #1e3a5f; color: #60a5fa; }
+  .badge-todo { background: #1e293b; color: #64748b; }
+  .badge-critical { background: #450a0a; color: #f87171; }
+
+  /* AI Section */
+  .ai-flow { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .ai-box { background: #0f1117; border-radius: 12px; padding: 20px; border: 1px solid #2d3154; }
+  .ai-box h4 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #a5b4fc; }
+  .ai-box ul { list-style: none; }
+  .ai-box ul li { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 8px; }
+  .ai-box ul li:last-child { border-bottom: none; }
+
+  @media (max-width: 768px) {
+    .container { padding: 24px 16px; }
+    .header h1 { font-size: 28px; }
+    .ai-flow { grid-template-columns: 1fr; }
+    .overview-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>🏗️ Дорожная карта холдинга</h1>
+    <p>Стратегия развития, ключевые проекты и операционные блоки всех компаний</p>
+    <div class="date">📅 Май 2026 · Период: II–III квартал 2026</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="overview-grid">
+    <a href="#neurosphere" class="overview-card">
+      <div class="icon">🧠</div>
+      <span class="status status-critical">CRITICAL</span>
+      <h3>НейроСфера</h3>
+      <div class="desc">AI-образование. Старт потока 26 мая. Онлайн-школа, олимпиады, AI-агенты.</div>
+      <div class="metrics">
+        <span>🎯 Запуск: 26.05</span>
+        <span>👥 21 лид</span>
+      </div>
+    </a>
+    <a href="#archdetali" class="overview-card">
+      <div class="icon">🏛️</div>
+      <span class="status status-active">ACTIVE</span>
+      <h3>АрхДетали</h3>
+      <div class="desc">Премиум-ремонт и дизайн интерьеров. Заявки, сметы, Telegram-бот.</div>
+      <div class="metrics">
+        <span>💰 12 млн ₽</span>
+        <span>📋 8 заявок</span>
+      </div>
+    </a>
+    <a href="#svcleaning" class="overview-card">
+      <div class="icon">🧹</div>
+      <span class="status status-pending">PENDING</span>
+      <h3>СВ-Клининг</h3>
+      <div class="desc">Профессиональная уборка. Партнёрская сеть, бот, шаблоны КП.</div>
+      <div class="metrics">
+        <span>🌍 МО + города</span>
+        <span>🤝 Партнёры: 10+</span>
+      </div>
+    </a>
+    <a href="#akademiya" class="overview-card">
+      <div class="icon">🔨</div>
+      <span class="status status-planning">PLANNING</span>
+      <h3>Академия Комфорта</h3>
+      <div class="desc">Строительство и ремонт. Сметы, подрядчики, ценообразование.</div>
+      <div class="metrics">
+        <span>📐 Сметы: 3</span>
+        <span>👤 Ирина</span>
+      </div>
+    </a>
+    <a href="#infra" class="overview-card">
+      <div class="icon">⚙️</div>
+      <span class="status status-active">ACTIVE</span>
+      <h3>Инфраструктура</h3>
+      <div class="desc">Серверы, Docker, AI-агенты, Telegram-боты, автоматизация.</div>
+      <div class="metrics">
+        <span>🖥️ 2 сервера</span>
+        <span>🤖 4 агента</span>
+      </div>
+    </a>
+    <a href="#marketing" class="overview-card">
+      <div class="icon">📢</div>
+      <span class="status status-pending">PENDING</span>
+      <h3>Маркетинг</h3>
+      <div class="desc">Яндекс.Директ, соцсети, лендинги, партнёрская сеть.</div>
+      <div class="metrics">
+        <span>📊 Директ: готов</span>
+        <span>📄 Лендинги: нет</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-title">📅 Ключевые вехи <span>2026</span></div>
+  <div class="timeline">
+
+    <div class="timeline-item t-done">
+      <span class="tag tag-done">✅ Май</span>
+      <h3>Запуск инфраструктуры</h3>
+      <p>Развёрнуты серверы, Docker, OpenClaw (Клава), Hermes. Настроены Telegram-боты и каналы связи.</p>
+      <div class="meta">Сервер 132.243.114.214 + 103.54.18.57</div>
+    </div>
+
+    <div class="timeline-item t-now">
+      <span class="tag tag-now">🔵 СЕЙЧАС</span>
+      <h3>Запуск потока НейроСфера 26.05</h3>
+      <p>Старт курса «ИИ для работы и бизнеса» (64 800 ₽, 4 недели). Осталось 2 дня. Партнёрская сеть, лендинги, материалы.</p>
+      <div class="meta">GetCourse · AI-тьютор · Олимпиады</div>
+    </div>
+
+    <div class="timeline-item t-soon">
+      <span class="tag tag-soon">🟡 Июнь</span>
+      <h3>Запуск Telegram-ботов для всех компаний</h3>
+      <p>АрхДетали (заявки, сметы), СВ-Клининг (КП, партнёры), Академия Комфорта (расчёт).</p>
+      <div class="meta">Hermes + sub-agents</div>
+    </div>
+
+    <div class="timeline-item t-soon">
+      <span class="tag tag-soon">🟡 Июнь</span>
+      <h3>Mini App Олимпиады — релиз</h3>
+      <p>Полноценный запуск: 926 задач, 7 экранов, AI-тьютор, геймификация. Деплой на Vercel.</p>
+      <div class="meta">neurosphere-olymp.vercel.app</div>
+    </div>
+
+    <div class="timeline-item t-soon">
+      <span class="tag tag-soon">🟡 Июль</span>
+      <h3>ДПО «Специалист по ИИ» — старт</h3>
+      <p>Программа профессиональной переподготовки. 256 часов, удостоверение гос. образца.</p>
+      <div class="meta">Лицензия Минобрнауки</div>
+    </div>
+
+    <div class="timeline-item t-soon">
+      <span class="tag tag-soon">🟡 III кв.</span>
+      <h3>Масштабирование: партнёрская сеть 50+</h3>
+      <p>Клининг по всей РФ, ремонт в МО, AI-образование онлайн. Автоматизация через AI-агентов.</p>
+      <div class="meta">CrewAI · 6 sub-agents</div>
+    </div>
+
+  </div>
+
+  <!-- NEUROSPHERE -->
+  <div class="section-title" id="neurosphere">🧠 НейроСфера <span>CRITICAL</span></div>
+  <div class="company-block">
+    <div class="progress-label"><span>Готовность к запуску 26.05</span><span>65%</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+
+    <div class="metric-grid">
+      <div class="metric"><div class="value">2</div><div class="label">Дня до старта</div></div>
+      <div class="metric"><div class="value">64 800</div><div class="label">₽ / курс</div></div>
+      <div class="metric"><div class="value">21</div><div class="label">Лидов</div></div>
+      <div class="metric"><div class="value">926</div><div class="label">Задач</div></div>
+    </div>
+
+    <div class="ai-flow">
+      <div class="ai-box">
+        <h4>✅ Готово</h4>
+        <ul>
+          <li><span class="done">✓</span>ТЗ на курс (64 800 ₽, 4 недели)</li>
+          <li><span class="done">✓</span>Mini App Олимпиады (Vercel)</li>
+          <li><span class="done">✓</span>926 задач, AI-тьютор</li>
+          <li><span class="done">✓</span>Бот @aistudyolimp_bot</li>
+          <li><span class="done">✓</span>Сайт neurosphere.group ✓</li>
+          <li><span class="done">✓</span>Яндекс.Метрика ✓</li>
+        </ul>
+      </div>
+      <div class="ai-box">
+        <h4>❌ Осталось сделать</h4>
+        <ul>
+          <li><span class="critical">⚠</span>Лендинги под поток (0 из 3)</li>
+          <li><span class="critical">⚠</span>Партнёрская сеть (не запущена)</li>
+          <li><span class="progress">◷</span>Материалы для Бориса</li>
+          <li><span class="progress">◷</span>ДПО «Специалист по ИИ» (октябрь)</li>
+          <li><span class="progress">◷</span>Рекламная кампания (Я.Директ)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARHDETALI -->
+  <div class="section-title" id="archdetali">🏛️ АрхДетали <span>ACTIVE</span></div>
+  <div class="company-block">
+    <div class="metric-grid">
+      <div class="metric"><div class="value">3 000+</div><div class="label">₽/м² средний чек</div></div>
+      <div class="metric"><div class="value">8</div><div class="label">Активных заявок</div></div>
+      <div class="metric"><div class="value">12 млн</div><div class="label">₽ потенциал</div></div>
+      <div class="metric"><div class="value">3</div><div class="label">Сотрудника</div></div>
+    </div>
+    <ul class="task-list">
+      <li><span class="done">✓</span>Настроена почта info@archdetali.ru — работает</li>
+      <li><span class="done">✓</span>Telegram @archdetalidesign — активен</li>
+      <li><span class="done">✓</span>Instagram — активен</li>
+      <li><span class="done">✓</span>Наталья Дворецкова — заявки, КП, отчёты</li>
+      <li><span class="done">✓</span>Стратегия: заявки до 5 000 ₽/м² → Академия Комфорта <span class="badge badge-done">DONE</span></li>
+      <li><span class="progress">◷</span>Telegram-бот для заявок и смет <span class="badge badge-progress">PROGRESS</span></li>
+      <li><span class="progress">◷</span>Автоматизация смет через AI <span class="badge badge-todo">TODO</span></li>
+      <li><span class="todo">○</span>SEO-доработка сайта archdetali.ru <span class="badge badge-todo">TODO</span></li>
+    </ul>
+  </div>
+
+  <!-- SV-CLEANING -->
+  <div class="section-title" id="svcleaning">🧹 СВ-Клининг <span>PENDING</span></div>
+  <div class="company-block">
+    <div class="metric-grid">
+      <div class="metric"><div class="value">5+</div><div class="label">Городов МО</div></div>
+      <div class="metric"><div class="value">10+</div><div class="label">Партнёров</div></div>
+      <div class="metric"><div class="value">2</div><div class="label">Клиента/нед</div></div>
+    </div>
+    <ul class="task-list">
+      <li><span class="done">✓</span>Почта info@svcleaning.ru — работает (imap.yandex.ru)</li>
+      <li><span class="done">✓</span>Сайт svcleaning.ru — Яндекс.Метрика ✓</li>
+      <li><span class="done">✓</span>Биржи подрядчиков — 22 площадки (reference)</li>
+      <li><span class="progress">◷</span>Telegram-бот СВ-Клининг <span class="badge badge-progress">PROGRESS</span></li>
+      <li><span class="progress">◷</span>Шаблоны КП на уборку <span class="badge badge-todo">TODO</span></li>
+      <li><span class="progress">◷</span>Партнёрская сеть по городам <span class="badge badge-todo">TODO</span></li>
+      <li><span class="todo">○</span>Реклама в Яндекс.Директ <span class="badge badge-todo">TODO</span></li>
+    </ul>
+  </div>
+
+  <!-- ACADEMY -->
+  <div class="section-title" id="akademiya">🔨 Академия Комфорта (ОСНОВА) <span>PLANNING</span></div>
+  <div class="company-block">
+    <div class="metric-grid">
+      <div class="metric"><div class="value">3</div><div class="label">Сметы</div></div>
+      <div class="metric"><div class="value">4 000+</div><div class="label">₽/м²</div></div>
+      <div class="metric"><div class="value">1</div><div class="label">Сотрудник</div></div>
+    </div>
+    <ul class="task-list">
+      <li><span class="done">✓</span>Прайс-лист 606 — цены утверждены</li>
+      <li><span class="done">✓</span>Гончаров Сергей — руководитель</li>
+      <li><span class="done">✓</span>Реквизиты ООО «ОСНОВА»</li>
+      <li><span class="progress">◷</span>Ирина (АК) — коммерция, сметы <span class="badge badge-progress">PROGRESS</span></li>
+      <li><span class="progress">◷</span>Сметчик AI (skill-estimator) <span class="badge badge-progress">PROGRESS</span></li>
+      <li><span class="todo">○</span>Подрядчики и база материалов <span class="badge badge-todo">TODO</span></li>
+      <li><span class="todo">○</span>Сайт acadkom.ru — наполнение <span class="badge badge-todo">TODO</span></li>
+    </ul>
+  </div>
+
+  <!-- INFRASTRUCTURE -->
+  <div class="section-title" id="infra">⚙️ Инфраструктура и AI-агенты <span>ACTIVE</span></div>
+  <div class="company-block">
+    <div class="metric-grid">
+      <div class="metric"><div class="value">2</div><div class="label">Сервера</div></div>
+      <div class="metric"><div class="value">4</div><div class="label">AI-агента</div></div>
+      <div class="metric"><div class="value">3</div><div class="label">Telegram-бота</div></div>
+      <div class="metric"><div class="value">5+</div><div class="label">Cron-задач</div></div>
+    </div>
+    <ul class="task-list">
+      <li><span class="done">✓</span>Сервер 1 (132.243.114.214) — Hermes + Docker</li>
+      <li><span class="done">✓</span>Сервер 2 (103.54.18.57) — Клава (klava1)</li>
+      <li><span class="done">✓</span>OpenClaw Gateway — запущен, healthcheck OK</li>
+      <li><span class="done">✓</span>Hermes — мастер-координатор, 50+ скиллов</li>
+      <li><span class="done">✓</span>Боты: @aistudyolimp_bot, @Neurosphereagent_bot, @openclawneurosphere_bot</li>
+      <li><span class="done">✓</span>Supabase (Daily Report Agent) — работает</li>
+      <li><span class="done">✓</span>Cron: дайджест 10:00, экзамен 05:50, отчёт 21:00</li>
+    </ul>
+  </div>
+
+  <!-- MARKETING -->
+  <div class="section-title" id="marketing">📢 Маркетинг и продвижение <span>PENDING</span></div>
+  <div class="company-block">
+    <div class="ai-flow">
+      <div class="ai-box">
+        <h4>Готово</h4>
+        <ul>
+          <li><span class="done">✓</span>Яндекс.Директ — кабинет агентства</li>
+          <li><span class="done">✓</span>Яндекс.Метрика на всех сайтах</li>
+          <li><span class="done">✓</span>Email-маркетинг (почты работают)</li>
+          <li><span class="done">✓</span>Анализ конкурентов EdTech (10 платформ)</li>
+          <li><span class="done">✓</span>Анализ бирж кодинга (9 площадок)</li>
+        </ul>
+      </div>
+      <div class="ai-box">
+        <h4>К запуску</h4>
+        <ul>
+          <li><span class="critical">⚠</span>Лендинг НейроСфера (срочно — 2 дня!)</li>
+          <li><span class="critical">⚠</span>Партнёрская программа (10–15%)</li>
+          <li><span class="progress">◷</span>Реклама в VK/Telegram</li>
+          <li><span class="progress">◷</span>SEO посадочные страницы</li>
+          <li><span class="progress">◷</span>Контент-план (Telegram-канал)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align: center; padding: 40px 0; color: #475569; font-size: 13px; border-top: 1px solid #2d3154; margin-top: 40px;">
+    <p>Дорожная карта холдинга · Сгенерировано Hermes AI · 24 мая 2026</p>
+    <p style="margin-top: 4px;">Актуально на момент формирования. Статусы могут меняться ежедневно.</p>
+  </div>
+
+</div>
+</body>
+</html>
