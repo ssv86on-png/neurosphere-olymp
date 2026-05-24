@@ -108,6 +108,9 @@ export default function TasksPage() {
 function TaskItem({ task }) {
   const colors = { easy: '#22c55e', medium: '#eab308', hard: '#ef4444', expert: '#a855f7' };
   return (
+    <a href={`/tasks/solve?id=${task.id}`} style={{
+      display: 'block', textDecoration: 'none',
+    }}>
     <div style={{
       background: '#1e293b', borderRadius: 12, padding: 14, marginBottom: 8,
       border: '1px solid #334155',
@@ -130,5 +133,6 @@ function TaskItem({ task }) {
         <span>{task.source}</span>
       </div>
     </div>
+    </a>
   );
 }
