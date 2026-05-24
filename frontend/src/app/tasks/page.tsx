@@ -108,7 +108,7 @@ export default function TasksPage() {
 function TaskItem({ task }) {
   const colors = { easy: '#22c55e', medium: '#eab308', hard: '#ef4444', expert: '#a855f7' };
   return (
-    <a href={`/tasks/solve?id=${task.id}`} style={{
+    <a href={`/solve?id=${task.id}`} style={{
       display: 'block', textDecoration: 'none',
     }}>
     <div style={{
